@@ -1,0 +1,52 @@
+﻿@page
+@model MessageHub.Clients.Pages.MessageReaderModel
+@{
+    ViewData["Title"] = "Получатель";
+}
+
+<div>
+    <table id="recievedMessages" class="table table-bordered">
+        <tr>
+            <th>№</th>
+            <th>Дата создания</th>
+            <th>Сообщение</th>
+        </tr>
+    </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+<script>
+    
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:5001/messagehub")
+        .build();
+
+    hubConnection.on("Receive", function (message) {
+        let row = createTableRow(message)
+        document.getElementById("recievedMessages").appendChild(row);
+    });
+
+   
+
+    hubConnection.start()
+        .catch(function (err) {
+            return console.error(err.toString());
+        });
+
+    function createTableRow(message) {
+        let tableRow = document.createElement("tr");
+        let tableColumnContent = document.createElement("td")
+        let tableColumnNumber = document.createElement("td")
+        let tableColumnDate = document.createElement("td")
+
+        tableColumnNumber.textContent = message.number
+        tableColumnDate.textContent = message.creationDate.toLocaleString()
+        tableColumnContent.textContent = message.content
+
+        tableRow.appendChild(tableColumnNumber)
+        tableRow.appendChild(tableColumnDate)
+        tableRow.appendChild(tableColumnContent)
+        return tableRow
+    }
+    
+</script>

@@ -1,0 +1,35 @@
+services:
+  messagehub.api:
+    image: ${DOCKER_REGISTRY-}messagehubapi
+    build:
+        context: .
+        dockerfile: MessageHub.API/Dockerfile
+    container_name: messagehub.api
+    depends_on: 
+        - messagehub.dal
+
+  messagehub.clients:
+    image: ${DOCKER_REGISTRY-}messagehubclients
+    build:
+        context: .
+        dockerfile: MessageHub.Clients/Dockerfile
+    container_name: messagehub.clients
+    depends_on:
+        - messagehub.api
+
+  messagehub.dal:
+    container_name: messagehub.dal
+    image: postgres:latest
+    restart: always
+    environment: 
+        POSTGRES_USER: deva
+        POSTGRES_PASSWORD: "1234"
+        POSTGRES_DB: messagehub
+    ports:
+        - "5432:5432"
+    volumes:
+        - pgsdb:/var/lib/postgresql/data
+
+volumes:
+  pgsdb:
+

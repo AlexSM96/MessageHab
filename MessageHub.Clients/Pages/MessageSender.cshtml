@@ -1,0 +1,76 @@
+﻿@page "/"
+@model MessageHub.Clients.Pages.MessageSenderModel
+@{
+    ViewData["Title"] = "Отправитель";
+}
+<div class="text-center">
+    <button id="sendButton" class="btn btn-info" onclick="startSending()">
+        Начать отправку
+    </button>
+    <button id="stopSendButton" class="btn btn-danger" onclick="stopSending()">
+        Завершить отправку
+    </button>
+    <br />
+    <br />
+    <div class="navbar-nav-scroll">
+        <table id="sendedMessage" class="table table-bordered">
+            <tr>
+                <th>№</th>
+                <th>Сообщение</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    let intervalId = null
+    let num = 0
+    async function startSending() {
+        const message = {
+            content: null,
+            number: null
+        }
+
+        intervalId = setInterval(async () => {
+            message.content = createRandomString(128)
+            message.number = ++num
+            await send("https://localhost:5001/API/MessageHub/SendMessage", message)
+            showSendedMessages(message)
+        }, 500)
+    }
+
+
+    function stopSending() {
+        clearInterval(intervalId)
+    }
+
+    async function send(url, message) {
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(message)
+        })
+    }
+
+    function createRandomString(length) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function showSendedMessages(message) {
+        let tableRow = document.createElement("tr")
+        let numberColumn = document.createElement("td")
+        let contentColumn = document.createElement("td")
+        numberColumn.textContent = message.number
+        contentColumn.textContent = message.content
+        tableRow.appendChild(numberColumn)
+        tableRow.appendChild(contentColumn)
+        document.getElementById("sendedMessage").appendChild(tableRow);
+    }
+</script>
