@@ -5,6 +5,7 @@ services:
         context: .
         dockerfile: MessageHub.API/Dockerfile
     container_name: messagehub.api
+    restart: always
     depends_on: 
         - messagehub.dal
 
